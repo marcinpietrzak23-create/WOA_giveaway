@@ -75,7 +75,17 @@ DRAW WINNER
 <table id="logs"></table>
 
 <script>
+  
+window.onload = function(){
 
+const params = new URLSearchParams(window.location.search)
+const ADMIN = params.get("admin")
+
+if(ADMIN === "dannyistoolucky"){
+document.getElementById("drawBtn").style.display = "inline-block"
+}
+
+}
 const API="https://script.google.com/macros/s/AKfycbx4W6dL9elENWzGRfivRN0xnxR937vc16LyOB3wJ0MC5RNExa_TQXwjKOOHJXsWRnXP/exec"
 
 let players=[]
