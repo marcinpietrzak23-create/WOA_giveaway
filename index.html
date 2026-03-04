@@ -28,6 +28,10 @@ background:#444;
 color:white;
 }
 
+button:hover{
+background:#666;
+}
+
 button:disabled{
 opacity:0.5;
 cursor:not-allowed;
@@ -75,22 +79,33 @@ DRAW WINNER
 <table id="logs"></table>
 
 <script>
-  
+
+const API="https://script.google.com/macros/s/AKfycbx4W6dL9elENWzGRfivRN0xnxR937vc16LyOB3wJ0MC5RNExa_TQXwjKOOHJXsWRnXP/exec"
+const ADMIN_KEY="dannyistoolucky"
+
+let players=[]
+let adminMode=false
+
 window.onload = function(){
 
 const params = new URLSearchParams(window.location.search)
 const ADMIN = params.get("admin")
 
-if(ADMIN === "dannyistoolucky"){
-document.getElementById("drawBtn").style.display = "inline-block"
+if(ADMIN === ADMIN_KEY){
+document.getElementById("drawBtn").style.display="inline-block"
+adminMode=true
 }
 
-}
-const API="https://script.google.com/macros/s/AKfycbx4W6dL9elENWzGRfivRN0xnxR937vc16LyOB3wJ0MC5RNExa_TQXwjKOOHJXsWRnXP/exec"
+loadPlayers()
+loadLogs()
 
-let players=[]
+setInterval(loadLogs,10000)
+
+}
 
 async function loadPlayers(){
+
+try{
 
 const r = await fetch(API + "?action=players")
 players = await r.json()
@@ -110,9 +125,17 @@ html+=`<tr>
 
 document.getElementById("players").innerHTML = html
 
+}catch(e){
+
+console.error("Players load error",e)
+
+}
+
 }
 
 async function loadLogs(){
+
+try{
 
 const r = await fetch(API + "?action=logs")
 const data = await r.json()
@@ -132,58 +155,66 @@ html+=`<tr>
 
 document.getElementById("logs").innerHTML=html
 
+}catch(e){
+
+console.error("Logs load error",e)
+
+}
+
 }
 
 async function draw(){
+
+if(!adminMode) return
 
 const btn = document.getElementById("drawBtn")
 const winnerBox = document.getElementById("winner")
 
 btn.disabled = true
-
 winnerBox.innerText = "🎲 Drawing..."
 
 await spinAnimation()
 
 try{
 
-const r = await fetch(API + "?action=draw")
+const r = await fetch(API + "?action=draw&key=" + ADMIN_KEY)
 const data = await r.json()
 
-winnerBox.innerText = "🏆 Winner: " + data.winner
+if(data.error){
+winnerBox.innerText="Access denied"
+}else{
+winnerBox.innerText="🏆 Winner: " + data.winner
+}
 
 }catch(e){
 
-winnerBox.innerText = "Error during draw"
+winnerBox.innerText="Error during draw"
 
 }
 
 setTimeout(loadLogs,1000)
 
-btn.disabled = false
+btn.disabled=false
 
 }
 
 async function spinAnimation(){
 
-const winnerBox = document.getElementById("winner")
+const winnerBox=document.getElementById("winner")
+
+if(players.length===0) return
 
 for(let i=0;i<20;i++){
 
 const randomPlayer = players[Math.floor(Math.random()*players.length)]
 
-winnerBox.innerText = randomPlayer.nick
+winnerBox.innerText=randomPlayer.nick
 
 await new Promise(r=>setTimeout(r,80))
 
 }
 
 }
-
-loadPlayers()
-loadLogs()
-
-setInterval(loadLogs,10000)
 
 </script>
 
