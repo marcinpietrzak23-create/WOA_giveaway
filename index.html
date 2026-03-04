@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Giveaway</title>
+
+<style>
+
+body{
+font-family:Arial;
+text-align:center;
+background:#111;
+color:white;
+}
+
+button{
+font-size:20px;
+padding:15px 30px;
+margin:20px;
+cursor:pointer;
+}
+
+table{
+margin:auto;
+border-collapse:collapse;
+}
+
+td,th{
+border:1px solid #555;
+padding:8px 12px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>🎲 Giveaway</h1>
+
+<button onclick="draw()">DRAW WINNER</button>
+
+<h2 id="winner"></h2>
+
+<h2>Players</h2>
+<table id="players"></table>
+
+<h2>Logs</h2>
+<table id="logs"></table>
+
+<script>
+
+const API="PASTE_API_URL_HERE"
+
+async function loadPlayers(){
+
+const r=await fetch(API+"?action=players")
+const data=await r.json()
+
+let html="<tr><th>Nick</th><th>Base</th><th>Bonus</th></tr>"
+
+data.forEach(p=>{
+html+=`<tr>
+<td>${p.nick}</td>
+<td>${p.base}</td>
+<td>${p.bonus}</td>
+</tr>`
+})
+
+document.getElementById("players").innerHTML=html
+
+}
+
+async function loadLogs(){
+
+const r=await fetch(API+"?action=logs")
+const data=await r.json()
+
+let html="<tr><th>Draw</th><th>Winner</th><th>Distribution</th></tr>"
+
+data.reverse().forEach(l=>{
+html+=`<tr>
+<td>${l.draw}</td>
+<td>${l.winner}</td>
+<td>${l.distribution}</td>
+</tr>`
+})
+
+document.getElementById("logs").innerHTML=html
+
+}
+
+async function draw(){
+
+const r=await fetch(API+"?action=draw")
+const data=await r.json()
+
+document.getElementById("winner").innerText="Winner: "+data.winner
+
+loadLogs()
+
+}
+
+loadPlayers()
+loadLogs()
+
+</script>
+
+</body>
+</html>
