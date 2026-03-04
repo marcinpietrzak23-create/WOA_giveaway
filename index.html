@@ -11,6 +11,11 @@ font-family:Arial;
 text-align:center;
 background:#111;
 color:white;
+margin:40px;
+}
+
+h1{
+font-size:40px;
 }
 
 button{
@@ -18,16 +23,35 @@ font-size:20px;
 padding:15px 30px;
 margin:20px;
 cursor:pointer;
+border:none;
+background:#444;
+color:white;
+}
+
+button:disabled{
+opacity:0.5;
+cursor:not-allowed;
+}
+
+#winner{
+font-size:32px;
+margin:30px;
+height:40px;
 }
 
 table{
 margin:auto;
 border-collapse:collapse;
+margin-top:20px;
 }
 
 td,th{
 border:1px solid #555;
 padding:8px 12px;
+}
+
+th{
+background:#222;
 }
 
 </style>
@@ -38,9 +62,9 @@ padding:8px 12px;
 
 <h1>🎲 Giveaway</h1>
 
-<button onclick="draw()">DRAW WINNER</button>
+<button id="drawBtn" onclick="draw()">DRAW WINNER</button>
 
-<h2 id="winner"></h2>
+<div id="winner">Ready</div>
 
 <h2>Players</h2>
 <table id="players"></table>
@@ -52,38 +76,46 @@ padding:8px 12px;
 
 const API="https://script.google.com/macros/s/AKfycbx4W6dL9elENWzGRfivRN0xnxR937vc16LyOB3wJ0MC5RNExa_TQXwjKOOHJXsWRnXP/exec"
 
+let players=[]
+
 async function loadPlayers(){
 
-const r=await fetch(API+"?action=players")
-const data=await r.json()
+const r = await fetch(API + "?action=players")
+players = await r.json()
 
-let html="<tr><th>Nick</th><th>Base</th><th>Bonus</th></tr>"
+let html="<tr><th>Nick</th><th>Tickets</th></tr>"
 
-data.forEach(p=>{
+players.forEach(p=>{
+
+const total = Number(p.base) + Number(p.bonus)
+
 html+=`<tr>
 <td>${p.nick}</td>
-<td>${p.base}</td>
-<td>${p.bonus}</td>
+<td>${total}</td>
 </tr>`
+
 })
 
-document.getElementById("players").innerHTML=html
+document.getElementById("players").innerHTML = html
 
 }
 
 async function loadLogs(){
 
-const r=await fetch(API+"?action=logs")
-const data=await r.json()
+const r = await fetch(API + "?action=logs")
+const data = await r.json()
 
-let html="<tr><th>Draw</th><th>Winner</th><th>Distribution</th></tr>"
+let html="<tr><th>Draw</th><th>Winner</th><th>Distribution</th><th>Time</th></tr>"
 
 data.reverse().forEach(l=>{
+
 html+=`<tr>
 <td>${l.draw}</td>
 <td>${l.winner}</td>
 <td>${l.distribution}</td>
+<td>${new Date(l.time).toLocaleString()}</td>
 </tr>`
+
 })
 
 document.getElementById("logs").innerHTML=html
@@ -92,17 +124,54 @@ document.getElementById("logs").innerHTML=html
 
 async function draw(){
 
-const r=await fetch(API+"?action=draw")
-const data=await r.json()
+const btn = document.getElementById("drawBtn")
+const winnerBox = document.getElementById("winner")
 
-document.getElementById("winner").innerText="Winner: "+data.winner
+btn.disabled = true
 
-loadLogs()
+winnerBox.innerText = "🎲 Drawing..."
+
+await spinAnimation()
+
+try{
+
+const r = await fetch(API + "?action=draw")
+const data = await r.json()
+
+winnerBox.innerText = "🏆 Winner: " + data.winner
+
+}catch(e){
+
+winnerBox.innerText = "Error during draw"
+
+}
+
+setTimeout(loadLogs,1000)
+
+btn.disabled = false
+
+}
+
+async function spinAnimation(){
+
+const winnerBox = document.getElementById("winner")
+
+for(let i=0;i<20;i++){
+
+const randomPlayer = players[Math.floor(Math.random()*players.length)]
+
+winnerBox.innerText = randomPlayer.nick
+
+await new Promise(r=>setTimeout(r,80))
+
+}
 
 }
 
 loadPlayers()
 loadLogs()
+
+setInterval(loadLogs,10000)
 
 </script>
 
