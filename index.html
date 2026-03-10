@@ -86,7 +86,21 @@ background:#222;
 <div id="clock"></div>
 <div id="countdown"></div>
 <div id="lastWinner">🏆 Last winner: -</div>
+<div id="hall" style="
+position:fixed;
+right:20px;
+top:100px;
+width:220px;
+background:#1a1a1a;
+padding:15px;
+border:1px solid #444;
+">
 
+<h3>🎁 Donors</h3>
+
+<table id="hallTable"></table>
+
+</div>
 <button id="drawBtn" onclick="draw()" style="display:none">
 DRAW WINNER
 </button>
@@ -100,7 +114,36 @@ DRAW WINNER
 <table id="logs"></table>
 
 <script>
+async function loadHallOfFame(){
 
+try{
+
+const r = await fetch(API+"?action=halloffame")
+const data = await r.json()
+
+let html="<tr><th>Nick</th><th>🎁</th></tr>"
+
+data.forEach(d=>{
+
+html+=`<tr>
+<td>${d.nick}</td>
+<td>
+🚗${d.car}
+🚀${d.rocket}
+👑${d.crown}
+🔫${d.pistol}
+</td>
+</tr>`
+
+})
+
+document.getElementById("hallTable").innerHTML=html
+
+}catch(e){
+console.log("hall load error")
+}
+
+}
 const API="https://script.google.com/macros/s/AKfycbx4W6dL9elENWzGRfivRN0xnxR937vc16LyOB3wJ0MC5RNExa_TQXwjKOOHJXsWRnXP/exec"
 const ADMIN_KEY="dannyistoolucky"
 
@@ -122,7 +165,8 @@ adminMode=true
 loadNextDraw()
 loadPlayers()
 loadLogs()
-
+loadHallOfFame()
+  
 setInterval(updateClock,1000)
 setInterval(detectNewDraw,5000)
 
