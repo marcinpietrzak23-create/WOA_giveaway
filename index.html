@@ -18,6 +18,16 @@ h1{
 font-size:40px;
 }
 
+#clock{
+font-size:22px;
+margin-top:10px;
+}
+
+#countdown{
+font-size:20px;
+margin-bottom:20px;
+}
+
 button{
 font-size:20px;
 padding:15px 30px;
@@ -66,6 +76,9 @@ background:#222;
 
 <h1>🎲 Giveaway</h1>
 
+<div id="clock"></div>
+<div id="countdown"></div>
+
 <button id="drawBtn" onclick="draw()" style="display:none">
 DRAW WINNER
 </button>
@@ -85,6 +98,8 @@ const ADMIN_KEY="dannyistoolucky"
 
 let players=[]
 let adminMode=false
+let nextDrawTime=null
+let lastDraw=0
 
 window.onload = function(){
 
@@ -96,10 +111,57 @@ document.getElementById("drawBtn").style.display="inline-block"
 adminMode=true
 }
 
+loadNextDraw()
 loadPlayers()
 loadLogs()
 
-setInterval(loadLogs,10000)
+setInterval(updateClock,1000)
+setInterval(detectNewDraw,5000)
+
+}
+
+async function loadNextDraw(){
+
+try{
+
+const r = await fetch(API + "?action=nextdraw")
+const data = await r.json()
+
+if(data.time){
+nextDrawTime=new Date(data.time)
+}
+
+}catch(e){
+console.log("Next draw load error")
+}
+
+}
+
+function updateClock(){
+
+const now=new Date()
+
+document.getElementById("clock").innerText=
+now.toLocaleDateString()+" "+now.toLocaleTimeString()
+
+if(!nextDrawTime){
+document.getElementById("countdown").innerText="No draw scheduled"
+return
+}
+
+const diff=nextDrawTime-now
+
+if(diff<=0){
+document.getElementById("countdown").innerText="Drawing..."
+return
+}
+
+const h=Math.floor(diff/1000/60/60)
+const m=Math.floor(diff/1000/60 % 60)
+const s=Math.floor(diff/1000 % 60)
+
+document.getElementById("countdown").innerText=
+"Next draw in: "+h+"h "+m+"m "+s+"s"
 
 }
 
@@ -107,14 +169,14 @@ async function loadPlayers(){
 
 try{
 
-const r = await fetch(API + "?action=players")
-players = await r.json()
+const r=await fetch(API+"?action=players")
+players=await r.json()
 
 let html="<tr><th>Nick</th><th>Tickets</th></tr>"
 
 players.forEach(p=>{
 
-const total = Number(p.base) + Number(p.bonus)
+const total=Number(p.base)+Number(p.bonus)
 
 html+=`<tr>
 <td>${p.nick}</td>
@@ -123,12 +185,10 @@ html+=`<tr>
 
 })
 
-document.getElementById("players").innerHTML = html
+document.getElementById("players").innerHTML=html
 
 }catch(e){
-
-console.error("Players load error",e)
-
+console.error("Players load error")
 }
 
 }
@@ -137,8 +197,8 @@ async function loadLogs(){
 
 try{
 
-const r = await fetch(API + "?action=logs")
-const data = await r.json()
+const r=await fetch(API+"?action=logs")
+const data=await r.json()
 
 let html="<tr><th>Draw</th><th>Winner</th><th>Distribution</th><th>Time</th></tr>"
 
@@ -156,9 +216,39 @@ html+=`<tr>
 document.getElementById("logs").innerHTML=html
 
 }catch(e){
+console.error("Logs load error")
+}
 
-console.error("Logs load error",e)
+}
 
+async function detectNewDraw(){
+
+try{
+
+const r=await fetch(API+"?action=logs")
+const data=await r.json()
+
+if(data.length===0) return
+
+const latest=data[data.length-1]
+
+if(lastDraw===0){
+lastDraw=latest.draw
+return
+}
+
+if(latest.draw!==lastDraw){
+
+lastDraw=latest.draw
+
+playDrawAnimation(latest.winner)
+
+loadLogs()
+
+}
+
+}catch(e){
+console.log("detect draw error")
 }
 
 }
@@ -167,24 +257,20 @@ async function draw(){
 
 if(!adminMode) return
 
-const btn = document.getElementById("drawBtn")
-const winnerBox = document.getElementById("winner")
+const btn=document.getElementById("drawBtn")
+const winnerBox=document.getElementById("winner")
 
-btn.disabled = true
-winnerBox.innerText = "🎲 Drawing..."
+btn.disabled=true
+winnerBox.innerText="🎲 Drawing..."
 
 await spinAnimation()
 
 try{
 
-const r = await fetch(API + "?action=draw&key=" + ADMIN_KEY)
-const data = await r.json()
+const r=await fetch(API+"?action=draw&key="+ADMIN_KEY)
+const data=await r.json()
 
-if(data.error){
-winnerBox.innerText="Access denied"
-}else{
-winnerBox.innerText="🏆 Winner: " + data.winner
-}
+winnerBox.innerText="🏆 Winner: "+data.winner
 
 }catch(e){
 
@@ -206,13 +292,31 @@ if(players.length===0) return
 
 for(let i=0;i<20;i++){
 
-const randomPlayer = players[Math.floor(Math.random()*players.length)]
+const randomPlayer=players[Math.floor(Math.random()*players.length)]
 
 winnerBox.innerText=randomPlayer.nick
 
 await new Promise(r=>setTimeout(r,80))
 
 }
+
+}
+
+async function playDrawAnimation(winner){
+
+const winnerBox=document.getElementById("winner")
+
+for(let i=0;i<20;i++){
+
+const randomPlayer=players[Math.floor(Math.random()*players.length)]
+
+winnerBox.innerText=randomPlayer.nick
+
+await new Promise(r=>setTimeout(r,70))
+
+}
+
+winnerBox.innerText="🏆 Winner: "+winner
 
 }
 
