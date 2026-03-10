@@ -121,23 +121,33 @@ try{
 const r = await fetch(API+"?action=halloffame")
 const data = await r.json()
 
-let html="<tr><th>Nick</th><th>🎁</th></tr>"
+let html = `
+<tr>
+<th>Nick</th>
+<th>🚗</th>
+<th>🚀</th>
+<th>👑</th>
+<th>🔫</th>
+<th>Total</th>
+</tr>
+`
 
 data.forEach(d=>{
 
-html+=`<tr>
+html += `
+<tr>
 <td>${d.nick}</td>
-<td>
-🚗${d.car}
-🚀${d.rocket}
-👑${d.crown}
-🔫${d.pistol}
-</td>
-</tr>`
+<td>${d.car}</td>
+<td>${d.rocket}</td>
+<td>${d.crown}</td>
+<td>${d.pistol}</td>
+<td><b>${d.total}</b></td>
+</tr>
+`
 
 })
 
-document.getElementById("hallTable").innerHTML=html
+document.getElementById("hallTable").innerHTML = html
 
 }catch(e){
 console.log("hall load error")
