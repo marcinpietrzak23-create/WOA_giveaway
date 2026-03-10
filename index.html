@@ -153,6 +153,11 @@ const diff=nextDrawTime-now
 
 if(diff<=0){
 document.getElementById("countdown").innerText="Drawing..."
+
+loadNextDraw()
+loadLogs()
+loadPlayers()
+
 return
 }
 
