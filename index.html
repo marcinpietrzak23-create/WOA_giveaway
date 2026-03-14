@@ -160,7 +160,41 @@ transition:width 0.5s;
 font-size:12px;
 opacity:0.8;
 }
+/* ===== MOBILE LAYOUT ===== */
 
+@media (max-width: 900px){
+
+body{
+margin-right:0;
+}
+
+/* usuwamy absolutne pozycjonowanie */
+#giftRace,
+#hall{
+position:relative;
+left:auto;
+right:auto;
+top:auto;
+width:90%;
+margin:20px auto;
+}
+
+/* trochę mniejsza tabela donors */
+#hall table{
+font-size:11px;
+}
+
+#hall th:first-child,
+#hall td:first-child{
+width:auto;
+}
+
+/* players table też trochę mniejsza */
+table{
+font-size:12px;
+}
+
+}
 </style>
 
 </head>
