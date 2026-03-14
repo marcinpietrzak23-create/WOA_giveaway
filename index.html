@@ -75,27 +75,14 @@ padding:8px 12px;
 th{
 background:#222;
 }
-#hall table{
-width:100%;
-font-size:13px;
-margin-top:10px;
-table-layout:fixed;
-}
 
-#hall th{
-background:#222;
-font-size:13px;
-}
+/* ---------- DONORS PANEL ---------- */
 
-#hall td{
-text-align:center;
-padding:4px;
-}
-  #hall{
+#hall{
 position:absolute;
-right:80px;
+right:40px;
 top:120px;
-width:260px;
+width:360px;
 background:#1a1a1a;
 padding:15px;
 border:1px solid #444;
@@ -104,27 +91,32 @@ border-radius:8px;
 
 #hall table{
 width:100%;
-font-size:14px;
+font-size:13px;
 margin-top:10px;
+table-layout:fixed;
 }
 
-#hall th{
-background:#222;
-font-size:13px;
-}
-#hall td{
-word-wrap:break-word;
-overflow:hidden;
-}
-  #hall td{
-word-wrap:break-word;
-overflow:hidden;
-}
-#hall td{
-text-align:center;
+#hall th,#hall td{
 padding:4px;
+text-align:center;
+overflow:hidden;
 }
-  #giftRace{
+
+#hall th:first-child,
+#hall td:first-child{
+width:160px;
+text-align:left;
+padding-left:8px;
+}
+
+#hall th:not(:first-child),
+#hall td:not(:first-child){
+width:35px;
+}
+
+/* ---------- GIFT RACE PANEL ---------- */
+
+#giftRace{
 position:absolute;
 left:40px;
 top:120px;
@@ -164,6 +156,7 @@ transition:width 0.5s;
 font-size:12px;
 opacity:0.8;
 }
+
 </style>
 
 </head>
