@@ -483,26 +483,26 @@ const data = await r.json()
 
 let html=""
 
-data.forEach(p=>{
+Object.entries(data).forEach(([nick,points])=>{
 
-const percent = Math.min(100,(p.points/4000)*100)
+const percent = Math.min(100,(points/4000)*100)
 
 let color="#4caf50"
 
-if(p.points>=4000){
+if(points>=4000){
 color="lime"
 }
 
 html += `
 <div class="progressRow">
 
-<div class="progressName">${p.nick}</div>
+<div class="progressName">${nick}</div>
 
 <div class="progressBar">
 <div class="progressFill" style="width:${percent}%;background:${color}"></div>
 </div>
 
-<div class="progressPoints">${p.points} / 4000</div>
+<div class="progressPoints">${points} / 4000</div>
 
 </div>
 `
