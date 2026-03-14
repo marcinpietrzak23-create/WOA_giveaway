@@ -116,6 +116,46 @@ font-size:13px;
 text-align:center;
 padding:4px;
 }
+  #giftRace{
+position:absolute;
+left:40px;
+top:120px;
+width:260px;
+background:#1a1a1a;
+padding:15px;
+border:1px solid #444;
+border-radius:8px;
+}
+
+.progressRow{
+margin-bottom:15px;
+text-align:left;
+}
+
+.progressName{
+font-size:16px;
+margin-bottom:3px;
+}
+
+.progressBar{
+width:100%;
+background:#333;
+border-radius:6px;
+height:16px;
+overflow:hidden;
+}
+
+.progressFill{
+height:100%;
+background:#4caf50;
+width:0%;
+transition:width 0.5s;
+}
+
+.progressPoints{
+font-size:12px;
+opacity:0.8;
+}
 </style>
 
 </head>
@@ -127,6 +167,10 @@ padding:4px;
 <div id="clock"></div>
 <div id="countdown"></div>
 <div id="lastWinner">🏆 Last winner: -</div>
+<div id="giftRace">
+<h3>🎁 Gift Race</h3>
+<div id="giftRaceContent"></div>
+</div>
 <div id="hall">
 
 <h3>🎁 Donors</h3>
@@ -209,10 +253,11 @@ loadNextDraw()
 loadPlayers()
 loadLogs()
 loadHallOfFame()
+loadGiftRace()
   
 setInterval(updateClock,1000)
 setInterval(detectNewDraw,5000)
-
+loadGiftRace()
 }
 
 async function loadNextDraw(){
@@ -429,7 +474,48 @@ await new Promise(r=>setTimeout(r,70))
 winnerBox.innerText="🏆 Winner: "+winner
 
 }
+async function loadGiftRace(){
 
+try{
+
+const r = await fetch(API+"?action=gifts")
+const data = await r.json()
+
+let html=""
+
+data.forEach(p=>{
+
+const percent = Math.min(100,(p.points/4000)*100)
+
+let color="#4caf50"
+
+if(p.points>=4000){
+color="lime"
+}
+
+html += `
+<div class="progressRow">
+
+<div class="progressName">${p.nick}</div>
+
+<div class="progressBar">
+<div class="progressFill" style="width:${percent}%;background:${color}"></div>
+</div>
+
+<div class="progressPoints">${p.points} / 4000</div>
+
+</div>
+`
+
+})
+
+document.getElementById("giftRaceContent").innerHTML=html
+
+}catch(e){
+console.log("gift race error")
+}
+
+}
 </script>
 
 </body>
