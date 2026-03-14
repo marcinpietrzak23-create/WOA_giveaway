@@ -203,6 +203,9 @@ try{
 const r = await fetch(API+"?action=halloffame")
 const data = await r.json()
 
+/* SORTOWANIE PO TOTAL */
+data.sort((a,b)=>b.total-a.total)
+
 let html = `
 <tr>
 <th>Nick</th>
@@ -214,11 +217,17 @@ let html = `
 </tr>
 `
 
-data.forEach(d=>{
+data.forEach((d,index)=>{
+
+let medal=""
+
+if(index===0) medal="🥇 "
+if(index===1) medal="🥈 "
+if(index===2) medal="🥉 "
 
 html += `
 <tr>
-<td>${d.nick}</td>
+<td>${medal}${d.nick}</td>
 <td>${d.car}</td>
 <td>${d.rocket}</td>
 <td>${d.crown}</td>
