@@ -232,6 +232,32 @@ font-size:12px;
 }
 
 }
+  /* ===== MOBILE / TABLET LAYOUT FIX ===== */
+
+@media (max-width:1100px){
+
+/* usuwamy absolutne pozycjonowanie paneli */
+#giftRace,
+#hall{
+position:static !important;
+width:90% !important;
+margin:20px auto !important;
+left:auto !important;
+right:auto !important;
+top:auto !important;
+}
+
+/* zmniejszamy trochę tabelę donors */
+#hall table{
+font-size:11px;
+}
+
+/* players table */
+table{
+font-size:12px;
+}
+
+}
 </style>
 
 </head>
